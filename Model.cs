@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Imitation_of_Stormy_Activity_ISA_console
 {
+<<<<<<< HEAD
     internal class Model
     {
         private int numberOfNodes = 2;
@@ -52,6 +53,25 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 Console.WriteLine(nodes[i]._currentNumberTask);
             }
         }
+=======
+    internal class Node
+    {
+        List<Request> requests { get; set; } = null!;
+        private int _currentNumberTask = 0;
+        Request currentTask { get; set; } = null!;
+        public int id;
+        public Node(int id)
+        {
+            this.id = id;
+        }
+
+        public Request FindCurrentTask()
+        {
+            currentTask = requests.MinBy(p => p.time);
+            return currentTask;
+        }
+
+>>>>>>> c317897cee21611c9fca54d2e08a13b360d4bd02
     }
 
 }
