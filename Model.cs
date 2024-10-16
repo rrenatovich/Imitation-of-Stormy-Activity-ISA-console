@@ -17,7 +17,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         {
             nodes = new List<Node>();
             for (int i = 0; i < numberOfNodes; i++)
-            {
+        {
                 nodes.Add(new Node(i + 1));
             }
             matrixTransit = new double[numberOfNodes + 1][];
@@ -33,7 +33,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
             double p = random.NextDouble();
             for (int i = 1; i < matrixTransit.Length; i++)
-            {
+        {
                 p -= matrixTransit[0][i];
 
                 if (p <= 0)
@@ -51,7 +51,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             {
                 Console.WriteLine(nodes[i]._currentNumberTask);
             }
-        }
-
     }
+
+}
 }

@@ -13,7 +13,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         Request currentTask { get; set; } = null!;
         public int id;
         public Node(int id)
-        {
+            {
             this.id = id;
         }
 
@@ -24,7 +24,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         }
 
         public void AddTask()
-        {
+            {
             requests.Add(new Request());
             _currentNumberTask++;
         }
