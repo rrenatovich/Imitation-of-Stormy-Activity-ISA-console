@@ -8,8 +8,8 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 {
     internal class Node
     {
-        List<Request> requests { get; set; } = null!;
-        private int _currentNumberTask = 0;
+        List<Request> requests = new List<Request>();
+        public int _currentNumberTask = 0;
         Request currentTask { get; set; } = null!;
         public int id;
         public Node(int id)
@@ -23,6 +23,11 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             return currentTask;
         }
 
+        public void AddTask()
+        {
+            requests.Add(new Request());
+            _currentNumberTask++;
+        }
     }
     
 }
