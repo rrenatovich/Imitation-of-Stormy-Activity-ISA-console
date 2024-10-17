@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -35,15 +36,28 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             task.NextState(transitionMatrix, this.id);
             requests.Add(task);
             currentNumberTask++;
-            double t = FindCurrentTask();
+            /*double t = FindCurrentTask();*/
         }
         public void RemoveTask() 
         {
             requests.Remove(currentTask);
             currentNumberTask--;
-            if (currentNumberTask > 0)
+          /*  if (currentNumberTask > 0)
             {
                 double t = FindCurrentTask();
+            }*/
+        }
+
+        public void UpdateTime(double mTime) 
+        {
+            if (currentNumberTask > 0) 
+            {
+                foreach(Request request in requests)
+                {
+                    request.time -= mTime;
+                    /*Console.WriteLine(request.time);*/
+                    /*double t = FindCurrentTask();*/
+                }
             }
         }
     }

@@ -12,28 +12,32 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         private int numberOfNodes = 2;
         List<Node> nodes;
         private double[][] matrixTransit;
-        private double time = 0;
+        public double time = 0;
+        public Statistics statistics;
+        public int done = 0;
 
         public Model()
         {
             nodes = new List<Node>();
             for (int i = 0; i < numberOfNodes; i++)
-        {
+            {
                 nodes.Add(new Node(i + 1));
             }
             matrixTransit = new double[numberOfNodes + 1][];
-            matrixTransit[0] = new double[] { 0, 0.5, 0.5, };
-            matrixTransit[1] = new double[] { 0.01, 0.0001, 10, };
-            matrixTransit[2] = new double[] { 0.01, 0.5, 0.000001, };
+            matrixTransit[0] = new double[] { 0, 0.3, 0.7, };
+            matrixTransit[1] = new double[] { 1, 0.0001, 1.8, };
+            matrixTransit[2] = new double[] { 0.1, 1, 0.000001, };
+
+            statistics = new Statistics(numberOfNodes);
         }
 
         public void GetInputTask()
         {
             var random = new Random();
-            
+
             double p = random.NextDouble();
             for (int i = 1; i < matrixTransit.Length; i++)
-        {
+            {
                 p -= matrixTransit[0][i];
 
                 if (p <= 0)
@@ -56,13 +60,15 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             node.RemoveTask();
         }
 
-        public void MainCycle() 
+        public void MainCycle()
         {
             int numberOfTasks = 0;
             double minimumTime = 999.999;
             int curNodeId = 0;
-            foreach(Node node in nodes) 
+            /*Console.WriteLine();*/
+            foreach (Node node in nodes)
             {
+                /*Console.WriteLine(node.currentNumberTask);*/
                 numberOfTasks += node.currentNumberTask;
                 if (node.currentNumberTask > 0)
                 {
@@ -78,26 +84,43 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             var random = new Random();
             if (numberOfTasks == 0)
             {
-                double a = -Math.Log(random.NextDouble()) / 10;
+                double a = -Math.Log(random.NextDouble()) / 100;
 
                 time += a;
+                foreach (Node node in nodes)
+                {
+                    statistics.WriteState(node.id, a, node.currentNumberTask);
+                }
                 GetInputTask();
             }
-            else 
+            else
             {
-                double a = -Math.Log(random.NextDouble()) / 10;
+                double a = -Math.Log(random.NextDouble()) / 100;
                 if (a <= minimumTime)
                 {
                     minimumTime = a;
                     time += minimumTime;
+                    foreach (Node node in nodes)
+                    {
+                        statistics.WriteState(node.id, a, node.currentNumberTask);
+                    }
                     GetInputTask();
                 }
                 else
                 {
                     time += minimumTime;
-                    if (nodes[curNodeId - 1].currentTask.transitionWay == 0 || nodes[curNodeId - 1].currentTask.transitionWay == -1)
+                    foreach (Node node in nodes)
+                    {
+                        statistics.WriteState(node.id, minimumTime, node.currentNumberTask);
+                    }
+                    if (nodes[curNodeId - 1].currentTask.transitionWay == 0 )
                     {
                         GetOut(nodes[curNodeId - 1]);
+                    }
+                    else if (nodes[curNodeId - 1].currentTask.transitionWay == -1)
+                    {
+                        GetOut(nodes[curNodeId - 1]);
+                        done++;
                     }
                     else
                     {
@@ -106,16 +129,19 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 }
             }
         }
-
+       /* public void GeStat()
+        {
+            statistics.GetStat(time);
+        }*/
         public void GetInfo()
         {
             Console.WriteLine($"Model Time: {time}");
             foreach (Node node in nodes)
             {
-                
+
                 Console.WriteLine($"Node id: {node.id} -- Number of tasks: {node.currentNumberTask}");
             }
-    }
+        }
 
-}
+    }
 }

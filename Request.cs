@@ -21,7 +21,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             transitMatrix[id] = 9999;
             /*time = 0;*/
 
-            double timeDone = -Math.Log(random.NextDouble()) / 1;
+            double timeDone = -Math.Log(random.NextDouble()) / 100;
 
             double minmumTransition = transitMatrix.Min();
 
