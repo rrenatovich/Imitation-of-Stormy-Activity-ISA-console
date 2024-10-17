@@ -4,9 +4,9 @@ Model model = new();
 Console.WriteLine(model);
 
 
-for (int i = 0; i < 1000; i++)
+for (int i = 0; i < 100000; i++)
 {
-    model.GetInputTask();
+    model.MainCycle();
 }
 Console.WriteLine(' ');
 model.GetInfo();
