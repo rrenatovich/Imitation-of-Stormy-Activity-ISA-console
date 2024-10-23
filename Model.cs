@@ -73,7 +73,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 if (node.currentNumberTask > 0)
                 {
                     double t = node.FindCurrentTask();
-                    if (t <= minimumTime)
+                    if (t < minimumTime)
                     {
                         minimumTime = t;
                         curNodeId = node.id;
