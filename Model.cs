@@ -96,7 +96,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             else
             {
                 double a = -Math.Log(random.NextDouble()) / 100;
-                if (a <= minimumTime)
+                if (a < minimumTime)
                 {
                     minimumTime = a;
                     time += minimumTime;
