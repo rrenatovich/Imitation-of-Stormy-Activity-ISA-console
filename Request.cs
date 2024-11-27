@@ -9,6 +9,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
     internal class Request
     {
         public double time;
+        public double timeDone;
         public double transitionTime;
         public int transitionWay;
         public int id;
@@ -23,7 +24,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             transitMatrix[id] = 9999;
             /*time = 0;*/
 
-            double timeDone = -Math.Log(random.NextDouble()) / 2;
+            timeDone = -Math.Log(random.NextDouble()) / 2;
 
             double minmumTransition = transitMatrix.Min();
 
@@ -52,7 +53,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 transitMatrix[i] = -Math.Log(random.NextDouble()) / transitMatrix[i];
             }
             transitMatrix[id] = 9999;
-
+            time = timeDone;
             double minmumTransition = transitMatrix.Min();
             if (minmumTransition < time )
             {
@@ -62,14 +63,18 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                     if (time == transitMatrix[i]) { transitionWay = i; }
                 }
             }
+            else
+            {
+                transitionWay = -1;
+            }
 
-            double timeDone = -Math.Log(random.NextDouble()) / 2;
+            /*double timeDone = -Math.Log(random.NextDouble()) / 2;
 
             if (timeDone < minmumTransition)
             {
                 time = timeDone;
                 transitionWay = -1;
-            }
+            }*/
         }
     }
 }

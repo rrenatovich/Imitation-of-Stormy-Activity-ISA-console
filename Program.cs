@@ -12,7 +12,7 @@ Console.WriteLine(model);
 int i = 0;
 while (model.time< 1)
 {
-    Console.WriteLine(model.time);
+    /*Console.WriteLine(model.time);*/
     model.MainCycle();
 }
 /*for (int i = 0; i < 10000; i++)
@@ -23,7 +23,7 @@ Console.WriteLine(' ');*/
 /*model.GetInfo();*/
 
 
-/*model.statistics.GetStat(model.time);*/
+model.statistics.GetStat(model.time);
 
 sw.Stop();
 Console.WriteLine($"------{sw.Elapsed} sec--------");

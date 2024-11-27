@@ -53,10 +53,10 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             for (int i = 0; i < statistics.Length; i++)
             {
                 Console.WriteLine(' ');
-              /*  for (int j = 0; j < statistics[i].Length; j++)
+                for (int j = 0; j < statistics[i].Length; j++)
                 {
                     Console.WriteLine($"{j} --- {statistics[i][j]}");
-                }*/
+                }
             }
         }
     }

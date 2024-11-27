@@ -98,8 +98,12 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         private void ServiceRequest()
         {
             Request temp = currentTask;
-            nodes[temp.id-1].Remove(temp);
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                nodes[i].Remove(currentTask);
+            }
             UpdateTime(temp.time);
+            temp.timeDone -= temp.time;
             if (temp.transitionWay != -1 && temp.transitionWay != 0)
             {
                 nodes[temp.id - 1].Add(temp);
@@ -124,7 +128,9 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 var currentTask = FindCurrentTask();
                 serviceTime = currentTask.time;
             }
-            
+
+            /*Console.WriteLine($"service time = {serviceTime}");
+            Console.WriteLine($"arrivalTime = {arrivalTime}");*/
             if (serviceTime < arrivalTime)
             {
                 time += serviceTime;
@@ -136,7 +142,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 UpdateTime(arrivalTime);
                 GetInputTask();
             }
-         
+            
 
 
             
