@@ -35,13 +35,26 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
         public void GetStat(double totalTime)
         {
+            foreach (var stat in statistics)
+            {
+                double mean = 0;
+                double s = 0;
+                foreach (var value in stat)
+                {
+                    mean += value.Key * value.Value / totalTime;
+                    s+= value.Value / totalTime;
+                    
+                }
+                Console.WriteLine($"summ = {s}");
+                Console.WriteLine($"mean = {mean}");
+            }
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < statistics.Length; i++) 
+            for (int i = 0; i < statistics.Length; i++)
             {
                 for (int j = 0; j < statistics[i].Count; j++)
                 {
-                    statistics[i][j] = statistics[i][j]/ totalTime;
-                    stringBuilder.AppendLine(string.Join(',',statistics[i][j]));
+                    statistics[i][j] = statistics[i][j] / totalTime;
+                    stringBuilder.AppendLine(string.Join(',', statistics[i][j]));
                 }
                 stringBuilder.AppendLine(string.Join(',', ' '));
                 stringBuilder.AppendLine(string.Join(',', ' '));
@@ -50,14 +63,14 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             }
             File.WriteAllText("output.csv", stringBuilder.ToString());
 
-            for (int i = 0; i < statistics.Length; i++)
+            /*for (int i = 0; i < statistics.Length; i++)
             {
                 Console.WriteLine(' ');
                 for (int j = 0; j < statistics[i].Count; j++)
                 {
                     Console.WriteLine($"{j} --- {statistics[i][j]}");
                 }
-            }
+            }*/
         }
     }
 

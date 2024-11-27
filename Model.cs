@@ -12,19 +12,34 @@ namespace Imitation_of_Stormy_Activity_ISA_console
     {
         Request currentTask;
         private int numberOfNodes = 2;
-        private double[][] matrixTransit;
-        public double time = 0;
+        private Dictionary<int, double>[] matrixTransit;
+        public double modelTime = 0;
         public Statistics statistics;
         public int done = 0;
         private List<Request>[] nodes;
 
         public Model()
         {
-            matrixTransit = new double[numberOfNodes + 1][];
-            matrixTransit[0] = new double[] { 0, 0.3, 0.7, };
-            matrixTransit[1] = new double[] { 1, 0, 1.8, };
-            matrixTransit[2] = new double[] { 0.1, 1, 0, };
+            matrixTransit = new Dictionary<int, double>[numberOfNodes+1];
+            // вероятности переходов
+            matrixTransit[0] = new Dictionary<int, double>()    
+            {
+                {1, 0.3},
+                {2, 0.7 }
+            };
 
+            // интенсивности переходов 
+            matrixTransit[1] = new Dictionary<int, double>()
+            {
+                {0, 1},
+                {2, 1.8 }
+            };
+            matrixTransit[2] = new Dictionary<int, double>()
+            {
+                {0, 0.1},
+                {1, 1}
+            };
+           
             statistics = new Statistics(numberOfNodes);
             nodes = new List<Request>[numberOfNodes];
             for (int i = 0; i < numberOfNodes; i++) {
@@ -39,15 +54,17 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             var random = new Random();
 
             double p = random.NextDouble();
-            for (int i = 1; i < matrixTransit.Length; i++)
+            foreach (var prop in matrixTransit[0])
             {
-                p -= matrixTransit[0][i];
-
-                if (p <= 0)
                 {
-                    nodes[i - 1].Add(new Request(matrixTransit[i], i));
-                    /*Console.WriteLine(i);*/
-                    break;
+                    p -= prop.Value;
+
+                    if (p <= 0)
+                    {
+                        nodes[prop.Key - 1].Add(new Request(matrixTransit[prop.Key], prop.Key));
+                        /*Console.WriteLine(i);*/
+                        break;
+                    }
                 }
             }
         }
@@ -83,7 +100,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         private double GetInputTime()
         {
             var random = new Random();
-            return -Math.Log(random.NextDouble()) / 10; 
+            return -Math.Log(random.NextDouble()) / 100; 
         }
 
         private void UpdateTime(double time) 
@@ -92,13 +109,14 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             {
                 foreach (var request in nodes[i])
                 {
-                    if (request.time < time)    // РЕДКОСТНОГО ГОВНА КОСТЫЛЬ 
+                    request.time -= time;
+                    /*if (request.time < time)    // РЕДКОСТНОГО ГОВНА КОСТЫЛЬ 
                     {
-                        /*Console.WriteLine($"{time}, {request.time}");*/
+                        *//*Console.WriteLine($"{time}, {request.time}");*//*
                         request.time = 0;
                     }
                     else 
-                    { request.time -= time; }
+                    { request.time -= time; }*/
                 }
             }
         }
@@ -111,7 +129,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             }
             UpdateTime(temp.time);
             temp.timeDone -= temp.time;
-            if (temp.transitionWay != -1 && temp.transitionWay != 0)
+            if (temp.transitionWay >0)
             {
                 nodes[temp.id - 1].Add(temp);
                 temp.id = temp.transitionWay;
@@ -138,9 +156,11 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
             /*Console.WriteLine($"service time = {serviceTime}");
             Console.WriteLine($"arrivalTime = {arrivalTime}");*/
+            modelTime += Math.Min(serviceTime, arrivalTime);
             for (int i = 0; i < nodes.Length; i++)
             {
                 statistics.WriteState(i, Math.Min(serviceTime, arrivalTime), nodes[i].Count);
+                /*Console.WriteLine($"node {i} -- {nodes[i].Count}");*/
             }
 
             /*if (Math.Min(serviceTime, arrivalTime) < 0)
@@ -149,12 +169,12 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             }*/
             if (serviceTime < arrivalTime)
             {
-                time += serviceTime;
+                
                 ServiceRequest();
             }
             else 
             {
-                time += arrivalTime;
+                
                 UpdateTime(arrivalTime);
                 GetInputTask();
             }

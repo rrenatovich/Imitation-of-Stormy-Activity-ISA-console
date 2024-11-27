@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Imitation_of_Stormy_Activity_ISA_console
 {
@@ -10,71 +12,105 @@ namespace Imitation_of_Stormy_Activity_ISA_console
     {
         public double time;
         public double timeDone;
-        public double transitionTime;
         public int transitionWay;
         public int id;
-        public Request(double[] transitMatrix, int id)
+        public Dictionary<int, double> tTime;
+        Random random = new Random();
+        public Request(Dictionary<int, double> transitMatrix, int id)
         {
             this.id = id;
-            var random = new Random();
-            for (int i = 0; i < transitMatrix.Length; i++)
+            tTime = new Dictionary<int, double>();
+
+            foreach (var value in transitMatrix)
             {
-                transitMatrix[i] = -Math.Log(random.NextDouble()) / transitMatrix[i];
+                tTime[value.Key] = -Math.Log(random.NextDouble()) / value.Value;
             }
-            transitMatrix[id] = 9999;
-            /*time = 0;*/
+            timeDone = GammaDistribution(2, 1/10);
+                /*-Math.Log(random.NextDouble()) / 1;*/
 
-            timeDone = -Math.Log(random.NextDouble()) / 1;
+            double minmumTransitionTime = 999.999;
+            transitionWay = 0;
+            foreach (var value in tTime) 
+            {
+                if (value.Value < minmumTransitionTime)
+                {
+                    minmumTransitionTime = value.Value;
+                    transitionWay = value.Key;
+                }
+            }
 
-            double minmumTransition = transitMatrix.Min();
-
-            if (timeDone < minmumTransition)
+            if (timeDone < minmumTransitionTime)
             {
                 time = timeDone;
                 transitionWay = -1;
             }
-            else
+            /*else
             {
-                time = minmumTransition;
+                time = minmumTransitionTime;
                 for (int i = 0; i < transitMatrix.Length; i++)
                 {
-                    if (time == transitMatrix[i]) { transitionWay = i; }
+                    if (time == tTime[i]) { transitionWay = i; }
                 }
-            }
+            }*/
 
             /*Console.WriteLine($"Текущей узел: {id}. Через {time} заявка перейдет в состояние {transitionWay}");*/
         }
-
-        public void NextState(double[] transitMatrix)
+        private double GammaDistribution(double shape, double scale)
         {
-            var random = new Random();
-            for (int i = 0; i < transitMatrix.Length; i++)
+            int ParamInt = (int)shape;
+            double ParamFrac = shape - ParamInt;
+            double result = 0;
+            
+            for (int i = 1; i <= ParamInt; i++)
             {
-                transitMatrix[i] = -Math.Log(random.NextDouble()) / transitMatrix[i];
+                double a = random.NextDouble();
+                while (a == 0) a = random.NextDouble();
+                result -= Math.Log(a);
             }
-            transitMatrix[id] = 9999;
-            time = timeDone;
-            double minmumTransition = transitMatrix.Min();
-            if (minmumTransition < time )
+
+            if (ParamFrac > 0)
             {
-                time = minmumTransition;
-                for (int i = 0; i < transitMatrix.Length; i++)
+                double a = random.NextDouble();
+                while (a == 0) a = random.NextDouble();
+                result += NextValueMinus1(1 - ParamFrac, ParamFrac) * Math.Log(a);
+            }
+            return result / scale;
+        }
+
+        public double NextValueMinus1(double Alpha, double Beta)
+        {
+            double a = Math.Pow(random.NextDouble(), 1 / Alpha);
+            double b = Math.Pow(random.NextDouble(), 1 / Beta);
+            while (a + b > 1)
+            {
+                a = Math.Pow(random.NextDouble(), 1 / Alpha);
+                b = Math.Pow(random.NextDouble(), 1 / Beta);
+            }
+            return -b / (a + b);
+        }
+        public void NextState(Dictionary<int, double> transitMatrix)
+        {
+
+            foreach (var value in transitMatrix)
+            {
+                tTime[value.Key] = -Math.Log(random.NextDouble()) / value.Value;
+            }
+            double minmumTransitionTime = 999.999;
+            transitionWay = 0;
+            foreach (var value in tTime)
+            {
+                if (value.Value < minmumTransitionTime)
                 {
-                    if (time == transitMatrix[i]) { transitionWay = i; }
+                    minmumTransitionTime = value.Value;
+                    transitionWay = value.Key;
                 }
             }
-            else
-            {
-                transitionWay = -1;
-            }
 
-            /*double timeDone = -Math.Log(random.NextDouble()) / 2;
-
-            if (timeDone < minmumTransition)
+            if (timeDone < minmumTransitionTime)
             {
                 time = timeDone;
                 transitionWay = -1;
-            }*/
+            }
         }
     }
 }
