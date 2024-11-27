@@ -10,23 +10,26 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 {
     internal class Model
     {
+        Request currentTask;
         private int numberOfNodes = 2;
         private double[][] matrixTransit;
         public double time = 0;
         public Statistics statistics;
         public int done = 0;
-        private int[] nodes;
+        private List<Request>[] nodes;
 
         public Model()
         {
             matrixTransit = new double[numberOfNodes + 1][];
             matrixTransit[0] = new double[] { 0, 0.3, 0.7, };
-            matrixTransit[1] = new double[] { 1, 0.0001, 1.8, };
+            matrixTransit[1] = new double[] { 0, 0.0001, 1.8, };
             matrixTransit[2] = new double[] { 0.1, 1, 0.000001, };
 
             statistics = new Statistics(numberOfNodes);
-            nodes = new int[numberOfNodes];
-            for (int i = 0; i < numberOfNodes; i++) { nodes[i] = 0; }
+            nodes = new List<Request>[numberOfNodes];
+            for (int i = 0; i < numberOfNodes; i++) {
+                nodes[i] = new List<Request> { };
+            }
 
             Console.WriteLine($"Init array of requests in nodes -- {nodes.Length}");
     }
@@ -42,25 +45,106 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
                 if (p <= 0)
                 {
-                    nodes[i - 1]+=1;
+                    nodes[i - 1].Add(new Request(matrixTransit[i], i));
                     /*Console.WriteLine(i);*/
                     break;
                 }
             }
         }
 
-       
-
-        
-
-        public void MainCycle()
+       public Request FindCurrentTask()
         {
             
+            for (int j = 0; j < nodes.Length; j++)
+            {
+                if (nodes[j].Count > 0) {
+                    currentTask = nodes[j][0];
+                    break;
+                }
+              
+            }
+            for (int i = 0;i < nodes.Length; i++)
+            {
+                if (nodes[i].Contains(currentTask))
+                {
+                    Request min = nodes[i].MinBy(p => p.time);
+                    if (min.time < currentTask.time)
+                    {
+                        currentTask = min;
+                    }
+
+                }
+               
+            }
+            return currentTask;
         }
-       /* public void GeStat()
+
+        private double GetInputTime()
         {
-            statistics.GetStat(time);
-        }*/
+            var random = new Random();
+            return -Math.Log(random.NextDouble()) / 10; 
+        }
+
+        private void UpdateTime(double time) 
+        {
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                foreach (var request in nodes[i])
+                {
+                    request.time -= time;
+                }
+            }
+        }
+        private void ServiceRequest()
+        {
+            Request temp = currentTask;
+            nodes[temp.id-1].Remove(temp);
+            UpdateTime(temp.time);
+            if (temp.transitionWay != -1 && temp.transitionWay != 0)
+            {
+                nodes[temp.id - 1].Add(temp);
+                temp.id = temp.transitionWay;
+                /*Console.Write(temp.id);*/
+                temp.NextState(matrixTransit[temp.id]);
+            }
+            
+            
+        }
+        public void MainCycle()
+        {
+            int currentTasks = 0;
+            for (int i = 0; i < nodes.Length; i++) {
+                currentTasks += nodes[i].Count;
+            }
+
+            /*Console.WriteLine(currentTasks);*/
+            double arrivalTime = GetInputTime();
+            double serviceTime = 9999.9999;
+            if (currentTasks != 0) { 
+                var currentTask = FindCurrentTask();
+                serviceTime = currentTask.time;
+            }
+            
+            if (serviceTime < arrivalTime)
+            {
+                time += serviceTime;
+                ServiceRequest();
+            }
+            else 
+            {
+                time += arrivalTime;
+                UpdateTime(arrivalTime);
+                GetInputTask();
+            }
+         
+
+
+            
+
+
+        }
+
+
         public void GetInfo()
         {
            

@@ -11,8 +11,10 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         public double time;
         public double transitionTime;
         public int transitionWay;
+        public int id;
         public Request(double[] transitMatrix, int id)
         {
+            this.id = id;
             var random = new Random();
             for (int i = 0; i < transitMatrix.Length; i++)
             {
@@ -21,7 +23,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             transitMatrix[id] = 9999;
             /*time = 0;*/
 
-            double timeDone = -Math.Log(random.NextDouble()) / 100;
+            double timeDone = -Math.Log(random.NextDouble()) / 2;
 
             double minmumTransition = transitMatrix.Min();
 
@@ -42,7 +44,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             /*Console.WriteLine($"Текущей узел: {id}. Через {time} заявка перейдет в состояние {transitionWay}");*/
         }
 
-        public void NextState(double[] transitMatrix, int id)
+        public void NextState(double[] transitMatrix)
         {
             var random = new Random();
             for (int i = 0; i < transitMatrix.Length; i++)
@@ -59,6 +61,14 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 {
                     if (time == transitMatrix[i]) { transitionWay = i; }
                 }
+            }
+
+            double timeDone = -Math.Log(random.NextDouble()) / 2;
+
+            if (timeDone < minmumTransition)
+            {
+                time = timeDone;
+                transitionWay = -1;
             }
         }
     }
