@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,138 +10,186 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 {
     internal class Model
     {
+        Request currentTask;
         private int numberOfNodes = 2;
-        List<Node> nodes;
-        private double[][] matrixTransit;
-        public double time = 0;
+        private Dictionary<int, double>[] matrixTransit;
+        public double modelTime = 0;
         public Statistics statistics;
         public int done = 0;
+        private List<Request>[] nodes;
 
         public Model()
         {
-            nodes = new List<Node>();
-            for (int i = 0; i < numberOfNodes; i++)
+            matrixTransit = new Dictionary<int, double>[numberOfNodes+1];
+            // вероятности переходов
+            matrixTransit[0] = new Dictionary<int, double>()    
             {
-                nodes.Add(new Node(i + 1));
-            }
-            matrixTransit = new double[numberOfNodes + 1][];
-            matrixTransit[0] = new double[] { 0, 0.3, 0.7, };
-            matrixTransit[1] = new double[] { 1, 0.0001, 1.8, };
-            matrixTransit[2] = new double[] { 0.1, 1, 0.000001, };
+                {1, 0.3},
+                {2, 0.7 }
+            };
 
+            // интенсивности переходов 
+            matrixTransit[1] = new Dictionary<int, double>()
+            {
+                {0, 1},
+                {2, 1.8 }
+            };
+            matrixTransit[2] = new Dictionary<int, double>()
+            {
+                {0, 0.1},
+                {1, 1}
+            };
+           
             statistics = new Statistics(numberOfNodes);
-        }
+            nodes = new List<Request>[numberOfNodes];
+            for (int i = 0; i < numberOfNodes; i++) {
+                nodes[i] = new List<Request> { };
+            }
+
+            Console.WriteLine($"Init array of requests in nodes -- {nodes.Length}");
+    }
 
         public void GetInputTask()
         {
             var random = new Random();
 
             double p = random.NextDouble();
-            for (int i = 1; i < matrixTransit.Length; i++)
+            foreach (var prop in matrixTransit[0])
             {
-                p -= matrixTransit[0][i];
-
-                if (p <= 0)
                 {
-                    nodes[i - 1].AddNewTask(matrixTransit[i]);
-                    /*Console.WriteLine(i);*/
+                    p -= prop.Value;
+
+                    if (p <= 0)
+                    {
+                        nodes[prop.Key - 1].Add(new Request(matrixTransit[prop.Key], prop.Key));
+                        /*Console.WriteLine(i);*/
+                        break;
+                    }
+                }
+            }
+        }
+
+       public Request FindCurrentTask()
+        {
+            
+            for (int j = 0; j < nodes.Length; j++)
+            {
+                if (nodes[j].Count > 0) {
+                    currentTask = nodes[j][0];
                     break;
                 }
+              
+            }
+            for (int i = 0;i < nodes.Length; i++)
+            {
+                if (nodes[i].Contains(currentTask))
+                {
+                    Request min = nodes[i].MinBy(p => p.time);
+                    /*Console.WriteLine($"{min.time} {min.transitionWay}");*/
+                    if (min.time < currentTask.time)
+                    {
+                        currentTask = min;
+                    }
+
+                }
+               
+            }
+            return currentTask;
+        }
+
+        private double GetInputTime()
+        {
+            var random = new Random();
+            return -Math.Log(random.NextDouble()) / 100; 
+        }
+
+        private void UpdateTime(double time) 
+        {
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                foreach (var request in nodes[i])
+                {
+                    request.time -= time;
+                    /*if (request.time < time)    // РЕДКОСТНОГО ГОВНА КОСТЫЛЬ 
+                    {
+                        *//*Console.WriteLine($"{time}, {request.time}");*//*
+                        request.time = 0;
+                    }
+                    else 
+                    { request.time -= time; }*/
+                }
             }
         }
-
-        public void GetTransition(Node nodeOut, Node nodeIn)
+        private void ServiceRequest()
         {
-            nodeIn.AddTask(nodeOut.currentTask, matrixTransit[nodeIn.id]);
-            nodeOut.RemoveTask();
+            Request temp = currentTask;
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                nodes[i].Remove(currentTask);
+            }
+            UpdateTime(temp.time);
+            temp.timeDone -= temp.time;
+            if (temp.transitionWay >0)
+            {
+                nodes[temp.id - 1].Add(temp);
+                temp.id = temp.transitionWay;
+                /*Console.Write(temp.id);*/
+                temp.NextState(matrixTransit[temp.id]);
+            }
+            
+            
         }
-
-        public void GetOut(Node node)
-        {
-            node.RemoveTask();
-        }
-
         public void MainCycle()
         {
-            int numberOfTasks = 0;
-            double minimumTime = 999.999;
-            int curNodeId = 0;
-            /*Console.WriteLine();*/
-            foreach (Node node in nodes)
-            {
-                /*Console.WriteLine(node.currentNumberTask);*/
-                numberOfTasks += node.currentNumberTask;
-                if (node.currentNumberTask > 0)
-                {
-                    double t = node.FindCurrentTask();
-                    if (t < minimumTime)
-                    {
-                        minimumTime = t;
-                        curNodeId = node.id;
-                    }
-                }
-
+            int currentTasks = 0;
+            for (int i = 0; i < nodes.Length; i++) {
+                currentTasks += nodes[i].Count;
             }
-            var random = new Random();
-            if (numberOfTasks == 0)
-            {
-                double a = -Math.Log(random.NextDouble()) / 100;
 
-                time += a;
-                foreach (Node node in nodes)
-                {
-                    statistics.WriteState(node.id, a, node.currentNumberTask);
-                }
+            /*Console.WriteLine(currentTasks);*/
+            double arrivalTime = GetInputTime();
+            double serviceTime = 9999.9999;
+            if (currentTasks != 0) { 
+                var currentTask = FindCurrentTask();
+                serviceTime = currentTask.time;
+            }
+
+            /*Console.WriteLine($"service time = {serviceTime}");
+            Console.WriteLine($"arrivalTime = {arrivalTime}");*/
+            modelTime += Math.Min(serviceTime, arrivalTime);
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                statistics.WriteState(i, Math.Min(serviceTime, arrivalTime), nodes[i].Count);
+                /*Console.WriteLine($"node {i} -- {nodes[i].Count}");*/
+            }
+
+            /*if (Math.Min(serviceTime, arrivalTime) < 0)
+            {
+                Console.WriteLine("ERROR");
+            }*/
+            if (serviceTime < arrivalTime)
+            {
+                
+                ServiceRequest();
+            }
+            else 
+            {
+                
+                UpdateTime(arrivalTime);
                 GetInputTask();
             }
-            else
-            {
-                double a = -Math.Log(random.NextDouble()) / 100;
-                if (a < minimumTime)
-                {
-                    minimumTime = a;
-                    time += minimumTime;
-                    foreach (Node node in nodes)
-                    {
-                        statistics.WriteState(node.id, a, node.currentNumberTask);
-                    }
-                    GetInputTask();
-                }
-                else
-                {
-                    time += minimumTime;
-                    foreach (Node node in nodes)
-                    {
-                        statistics.WriteState(node.id, minimumTime, node.currentNumberTask);
-                    }
-                    if (nodes[curNodeId - 1].currentTask.transitionWay == 0 )
-                    {
-                        GetOut(nodes[curNodeId - 1]);
-                    }
-                    else if (nodes[curNodeId - 1].currentTask.transitionWay == -1)
-                    {
-                        GetOut(nodes[curNodeId - 1]);
-                        done++;
-                    }
-                    else
-                    {
-                        GetTransition(nodes[curNodeId - 1], nodes[nodes[curNodeId - 1].currentTask.transitionWay - 1]);
-                    }
-                }
-            }
+            
+
+
+            
+
+
         }
-       /* public void GeStat()
-        {
-            statistics.GetStat(time);
-        }*/
+
+
         public void GetInfo()
         {
-            Console.WriteLine($"Model Time: {time}");
-            foreach (Node node in nodes)
-            {
-
-                Console.WriteLine($"Node id: {node.id} -- Number of tasks: {node.currentNumberTask}");
-            }
+           
         }
 
     }

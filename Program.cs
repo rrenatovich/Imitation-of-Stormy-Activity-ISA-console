@@ -7,9 +7,12 @@ var sw = new Stopwatch();
 sw.Start();
 Model model = new();
 Console.WriteLine(model);
-while (model.time < 500)
+/*model.MainCycle();*/
+
+int i = 0;
+while (model.modelTime < 10)
 {
-    Console.WriteLine(model.time);
+    Console.WriteLine(model.modelTime);
     model.MainCycle();
 }
 /*for (int i = 0; i < 10000; i++)
@@ -20,7 +23,7 @@ Console.WriteLine(' ');*/
 /*model.GetInfo();*/
 
 
-model.statistics.GetStat(model.time);
+model.statistics.GetStat(model.modelTime);
 
 sw.Stop();
 Console.WriteLine($"------{sw.Elapsed} sec--------");
