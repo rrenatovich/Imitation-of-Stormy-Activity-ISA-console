@@ -7,11 +7,12 @@ var sw = new Stopwatch();
 sw.Start();
 Model model = new();
 Console.WriteLine(model);
-while (model.time < 500)
+model.MainCycle();
+/*while (model.time < 500)
 {
     Console.WriteLine(model.time);
     model.MainCycle();
-}
+}*/
 /*for (int i = 0; i < 10000; i++)
 {
     model.MainCycle();
