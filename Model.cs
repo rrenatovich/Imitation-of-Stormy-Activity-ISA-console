@@ -22,8 +22,8 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         {
             matrixTransit = new double[numberOfNodes + 1][];
             matrixTransit[0] = new double[] { 0, 0.3, 0.7, };
-            matrixTransit[1] = new double[] { 0, 0.0001, 1.8, };
-            matrixTransit[2] = new double[] { 0.1, 1, 0.000001, };
+            matrixTransit[1] = new double[] { 1, 0, 1.8, };
+            matrixTransit[2] = new double[] { 0.1, 1, 0, };
 
             statistics = new Statistics(numberOfNodes);
             nodes = new List<Request>[numberOfNodes];
@@ -68,6 +68,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 if (nodes[i].Contains(currentTask))
                 {
                     Request min = nodes[i].MinBy(p => p.time);
+                    /*Console.WriteLine($"{min.time} {min.transitionWay}");*/
                     if (min.time < currentTask.time)
                     {
                         currentTask = min;
@@ -91,7 +92,13 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             {
                 foreach (var request in nodes[i])
                 {
-                    request.time -= time;
+                    if (request.time < time)    // РЕДКОСТНОГО ГОВНА КОСТЫЛЬ 
+                    {
+                        /*Console.WriteLine($"{time}, {request.time}");*/
+                        request.time = 0;
+                    }
+                    else 
+                    { request.time -= time; }
                 }
             }
         }
@@ -131,6 +138,15 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
             /*Console.WriteLine($"service time = {serviceTime}");
             Console.WriteLine($"arrivalTime = {arrivalTime}");*/
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                statistics.WriteState(i, Math.Min(serviceTime, arrivalTime), nodes[i].Count);
+            }
+
+            /*if (Math.Min(serviceTime, arrivalTime) < 0)
+            {
+                Console.WriteLine("ERROR");
+            }*/
             if (serviceTime < arrivalTime)
             {
                 time += serviceTime;
