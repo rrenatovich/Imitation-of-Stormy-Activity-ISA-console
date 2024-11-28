@@ -109,7 +109,8 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             {
                 foreach (var request in nodes[i])
                 {
-                    request.time -= time;
+                    request.timeDone -= time;
+                    request.NextState(matrixTransit[request.id]);
                     /*if (request.time < time)    // РЕДКОСТНОГО ГОВНА КОСТЫЛЬ 
                     {
                         *//*Console.WriteLine($"{time}, {request.time}");*//*
@@ -128,7 +129,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 nodes[i].Remove(currentTask);
             }
             UpdateTime(temp.time);
-            temp.timeDone -= temp.time;
+            /*temp.timeDone -= temp.time;*/
             if (temp.transitionWay >0)
             {
                 nodes[temp.id - 1].Add(temp);
