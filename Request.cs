@@ -10,7 +10,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 {
     internal class Request
     {
-        public double time;
+        public double currentTime;
         public double timeDone;
         public int transitionWay;
         public int id;
@@ -25,23 +25,24 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             {
                 tTime[value.Key] = -Math.Log(random.NextDouble()) / value.Value;
             }
-            timeDone = GammaDistribution(2, 1/10);
-                /*-Math.Log(random.NextDouble()) / 1;*/
+            timeDone = -Math.Log(random.NextDouble()) / 1;
+                /*GammaDistribution(0.1, 1/2)*/;
+            /*-Math.Log(random.NextDouble()) / 1;*/
 
-            double minmumTransitionTime = 999.999;
+            currentTime = 999.999;
             transitionWay = 0;
             foreach (var value in tTime) 
             {
-                if (value.Value < minmumTransitionTime)
+                if (value.Value < currentTime)
                 {
-                    minmumTransitionTime = value.Value;
+                    currentTime = value.Value;
                     transitionWay = value.Key;
                 }
             }
 
-            if (timeDone < minmumTransitionTime)
+            if (timeDone < currentTime)
             {
-                time = timeDone;
+                currentTime = timeDone;
                 transitionWay = -1;
             }
             /*else
@@ -95,20 +96,20 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             {
                 tTime[value.Key] = -Math.Log(random.NextDouble()) / value.Value;
             }
-            double minmumTransitionTime = 999.999;
+            
             transitionWay = 0;
             foreach (var value in tTime)
             {
-                if (value.Value < minmumTransitionTime)
+                if (value.Value < currentTime)
                 {
-                    minmumTransitionTime = value.Value;
+                    currentTime = value.Value;
                     transitionWay = value.Key;
                 }
             }
 
-            if (timeDone < minmumTransitionTime)
+            if (timeDone < currentTime)
             {
-                time = timeDone;
+                currentTime = timeDone;
                 transitionWay = -1;
             }
         }

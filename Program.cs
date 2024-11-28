@@ -10,9 +10,9 @@ Console.WriteLine(model);
 /*model.MainCycle();*/
 
 int i = 0;
-while (model.modelTime < 10)
+while (model.modelTime < 1000)
 {
-    Console.WriteLine(model.modelTime);
+    /*Console.WriteLine(model.modelTime);*/
     model.MainCycle();
 }
 /*for (int i = 0; i < 10000; i++)

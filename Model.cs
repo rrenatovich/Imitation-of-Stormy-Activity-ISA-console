@@ -17,7 +17,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         public Statistics statistics;
         public int done = 0;
         private List<Request>[] nodes;
-
+        Random random = new Random();
         public Model()
         {
             matrixTransit = new Dictionary<int, double>[numberOfNodes+1];
@@ -51,7 +51,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
         public void GetInputTask()
         {
-            var random = new Random();
+            
 
             double p = random.NextDouble();
             foreach (var prop in matrixTransit[0])
@@ -61,7 +61,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
                     if (p <= 0)
                     {
-                        nodes[prop.Key - 1].Add(new Request(matrixTransit[prop.Key], prop.Key));
+                        nodes[prop.Key - 1].Add(new Request(matrixTransit[prop.Key], prop.Key-1));
                         /*Console.WriteLine(i);*/
                         break;
                     }
@@ -71,35 +71,26 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
        public Request FindCurrentTask()
         {
-            
+            double minTime = 666.666;
             for (int j = 0; j < nodes.Length; j++)
             {
                 if (nodes[j].Count > 0) {
-                    currentTask = nodes[j][0];
-                    break;
-                }
-              
-            }
-            for (int i = 0;i < nodes.Length; i++)
-            {
-                if (nodes[i].Contains(currentTask))
-                {
-                    Request min = nodes[i].MinBy(p => p.time);
+                    Request min = nodes[j].MinBy(p => p.currentTime);
                     /*Console.WriteLine($"{min.time} {min.transitionWay}");*/
-                    if (min.time < currentTask.time)
+                    if (min.currentTime < minTime)
                     {
                         currentTask = min;
+                        minTime = min.currentTime;
                     }
-
                 }
-               
+              
             }
             return currentTask;
         }
 
         private double GetInputTime()
         {
-            var random = new Random();
+           
             return -Math.Log(random.NextDouble()) / 100; 
         }
 
@@ -111,13 +102,6 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 {
                     request.timeDone -= time;
                     request.NextState(matrixTransit[request.id]);
-                    /*if (request.time < time)    // РЕДКОСТНОГО ГОВНА КОСТЫЛЬ 
-                    {
-                        *//*Console.WriteLine($"{time}, {request.time}");*//*
-                        request.time = 0;
-                    }
-                    else 
-                    { request.time -= time; }*/
                 }
             }
         }
@@ -128,14 +112,13 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             {
                 nodes[i].Remove(currentTask);
             }
-            UpdateTime(temp.time);
+            /*UpdateTime(temp.time);*/
             /*temp.timeDone -= temp.time;*/
             if (temp.transitionWay >0)
             {
-                nodes[temp.id - 1].Add(temp);
+                nodes[temp.transitionWay-1].Add(temp);
                 temp.id = temp.transitionWay;
                 /*Console.Write(temp.id);*/
-                temp.NextState(matrixTransit[temp.id]);
             }
             
             
@@ -152,7 +135,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             double serviceTime = 9999.9999;
             if (currentTasks != 0) { 
                 var currentTask = FindCurrentTask();
-                serviceTime = currentTask.time;
+                serviceTime = currentTask.currentTime;
             }
 
             /*Console.WriteLine($"service time = {serviceTime}");
@@ -175,14 +158,13 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             }
             else 
             {
-                
-                UpdateTime(arrivalTime);
                 GetInputTask();
             }
-            
+            UpdateTime(Math.Min(serviceTime, arrivalTime));
 
 
-            
+
+
 
 
         }
