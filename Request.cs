@@ -15,10 +15,11 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         public int transitionWay;
         public int id;
         public Dictionary<int, double> tTime;
-        Random random = new Random();
-        public Request(Dictionary<int, double> transitMatrix, int id)
+        Random random;
+        public Request(Dictionary<int, double> transitMatrix, int id, Random random)
         {
             this.id = id;
+            this.random = random;
             tTime = new Dictionary<int, double>();
 
             foreach (var value in transitMatrix)

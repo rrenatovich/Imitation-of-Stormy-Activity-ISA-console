@@ -61,7 +61,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
                     if (p <= 0)
                     {
-                        nodes[prop.Key - 1].Add(new Request(matrixTransit[prop.Key], prop.Key-1));
+                        nodes[prop.Key - 1].Add(new Request(matrixTransit[prop.Key], prop.Key-1, random));
                         /*Console.WriteLine(i);*/
                         break;
                     }
@@ -91,7 +91,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         private double GetInputTime()
         {
            
-            return -Math.Log(random.NextDouble()) / 100; 
+            return -Math.Log(random.NextDouble()) / 1; 
         }
 
         private void UpdateTime(double time) 
