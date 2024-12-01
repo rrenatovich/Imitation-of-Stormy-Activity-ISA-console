@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 {
     internal class Model
     {
+        TimeDistibution td = new TimeDistibution();
+        /*public StreamWriter writer = new StreamWriter("Test.txt");*/
         Request currentTask;
         private int numberOfNodes = 2;
         private Dictionary<int, double>[] matrixTransit;
@@ -18,6 +21,15 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         public int done = 0;
         private List<Request>[] nodes;
         Random random = new Random();
+
+        Dictionary<int, int> reqs_stat = new Dictionary<int, int>()
+            {
+                {1, 0 },
+                {2, 0},
+
+            };
+
+        List<Request> reqs = new List<Request>();
         public Model()
         {
             matrixTransit = new Dictionary<int, double>[numberOfNodes+1];
@@ -46,7 +58,8 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 nodes[i] = new List<Request> { };
             }
 
-            Console.WriteLine($"Init array of requests in nodes -- {nodes.Length}");
+            
+            /*Console.WriteLine($"Init array of requests in nodes -- {nodes.Length}");*/
     }
 
         public void GetInputTask()
@@ -61,8 +74,10 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
                     if (p <= 0)
                     {
-                        nodes[prop.Key - 1].Add(new Request(matrixTransit[prop.Key], prop.Key-1, random));
-                        /*Console.WriteLine(i);*/
+                        /*nodes[prop.Key - 1].Add(new Request(matrixTransit[prop.Key], prop.Key, td));*/
+
+                        reqs.Add(new Request(matrixTransit[prop.Key], prop.Key, td));
+                        reqs_stat[prop.Key]++;
                         break;
                     }
                 }
@@ -71,12 +86,12 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
        public Request FindCurrentTask()
         {
-            double minTime = 666.666;
+            /*double minTime = 666.666;
             for (int j = 0; j < nodes.Length; j++)
             {
                 if (nodes[j].Count > 0) {
                     Request min = nodes[j].MinBy(p => p.currentTime);
-                    /*Console.WriteLine($"{min.time} {min.transitionWay}");*/
+                    *//*Console.WriteLine($"{min.time} {min.transitionWay}");*//*
                     if (min.currentTime < minTime)
                     {
                         currentTask = min;
@@ -84,73 +99,76 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                     }
                 }
               
-            }
-            return currentTask;
+            }*/
+
+            var r = reqs.MinBy(p => p.currentTime);
+
+            return r;
         }
 
         private double GetInputTime()
         {
            
-            return -Math.Log(random.NextDouble()) / 1; 
+            return td.GetExpTime(100); 
         }
 
         private void UpdateTime(double time) 
         {
-            for (int i = 0; i < nodes.Length; i++)
+            /*for (int i = 0; i < nodes.Length; i++)
             {
                 foreach (var request in nodes[i])
                 {
                     request.timeDone -= time;
-                    request.NextState(matrixTransit[request.id]);
+                    request.NextState(matrixTransit[request.id], td);
                 }
+            }*/
+
+            foreach (Request req in reqs) 
+            {
+                req.timeDone -= time;
+                req.NextState(matrixTransit[req.id], td);
             }
         }
         private void ServiceRequest()
         {
-            Request temp = currentTask;
-            for (int i = 0; i < nodes.Length; i++)
+            
+            /*for (int i = 0; i < nodes.Length; i++)
             {
                 nodes[i].Remove(currentTask);
-            }
-            /*UpdateTime(temp.time);*/
-            /*temp.timeDone -= temp.time;*/
-            if (temp.transitionWay >0)
-            {
-                nodes[temp.transitionWay-1].Add(temp);
-                temp.id = temp.transitionWay;
-                /*Console.Write(temp.id);*/
-            }
+            }*/
             
+            if (currentTask.transitionWay >0)
+            {
+                reqs_stat[currentTask.id] --;
+                currentTask.id = currentTask.transitionWay;
+                reqs_stat[currentTask.id]++;
+                
+            }
+            else { reqs.Remove(currentTask); reqs_stat[currentTask.id]--; }
             
         }
         public void MainCycle()
         {
-            int currentTasks = 0;
+            /*int currentTasks = 0;
             for (int i = 0; i < nodes.Length; i++) {
                 currentTasks += nodes[i].Count;
-            }
-
-            /*Console.WriteLine(currentTasks);*/
+                
+            }*/
+            
             double arrivalTime = GetInputTime();
             double serviceTime = 9999.9999;
-            if (currentTasks != 0) { 
-                var currentTask = FindCurrentTask();
+            if (reqs.Count > 0) { 
+                currentTask = FindCurrentTask();
                 serviceTime = currentTask.currentTime;
             }
 
-            /*Console.WriteLine($"service time = {serviceTime}");
-            Console.WriteLine($"arrivalTime = {arrivalTime}");*/
+            
             modelTime += Math.Min(serviceTime, arrivalTime);
             for (int i = 0; i < nodes.Length; i++)
             {
-                statistics.WriteState(i, Math.Min(serviceTime, arrivalTime), nodes[i].Count);
-                /*Console.WriteLine($"node {i} -- {nodes[i].Count}");*/
+                statistics.WriteState(i, Math.Min(serviceTime, arrivalTime), reqs_stat[i+1]);
             }
 
-            /*if (Math.Min(serviceTime, arrivalTime) < 0)
-            {
-                Console.WriteLine("ERROR");
-            }*/
             if (serviceTime < arrivalTime)
             {
                 

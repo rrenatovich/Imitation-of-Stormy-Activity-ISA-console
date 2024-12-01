@@ -27,4 +27,5 @@ model.statistics.GetStat(model.modelTime);
 
 sw.Stop();
 Console.WriteLine($"------{sw.Elapsed} sec--------");
+/*model.writer.Close();*/
 

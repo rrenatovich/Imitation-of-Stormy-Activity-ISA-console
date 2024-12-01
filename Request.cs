@@ -16,17 +16,17 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         public int id;
         public Dictionary<int, double> tTime;
         Random random;
-        public Request(Dictionary<int, double> transitMatrix, int id, Random random)
+        public Request(Dictionary<int, double> transitMatrix, int id, TimeDistibution td)
         {
             this.id = id;
-            this.random = random;
+            
             tTime = new Dictionary<int, double>();
 
             foreach (var value in transitMatrix)
             {
-                tTime[value.Key] = -Math.Log(random.NextDouble()) / value.Value;
+                tTime[value.Key] = td.GetExpTime(value.Value);
             }
-            timeDone = -Math.Log(random.NextDouble()) / 1;
+            timeDone =td.GetExpTime(1);
                 /*GammaDistribution(0.1, 1/2)*/;
             /*-Math.Log(random.NextDouble()) / 1;*/
 
@@ -57,45 +57,13 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
             /*Console.WriteLine($"Текущей узел: {id}. Через {time} заявка перейдет в состояние {transitionWay}");*/
         }
-        private double GammaDistribution(double shape, double scale)
-        {
-            int ParamInt = (int)shape;
-            double ParamFrac = shape - ParamInt;
-            double result = 0;
-            
-            for (int i = 1; i <= ParamInt; i++)
-            {
-                double a = random.NextDouble();
-                while (a == 0) a = random.NextDouble();
-                result -= Math.Log(a);
-            }
-
-            if (ParamFrac > 0)
-            {
-                double a = random.NextDouble();
-                while (a == 0) a = random.NextDouble();
-                result += NextValueMinus1(1 - ParamFrac, ParamFrac) * Math.Log(a);
-            }
-            return result / scale;
-        }
-
-        public double NextValueMinus1(double Alpha, double Beta)
-        {
-            double a = Math.Pow(random.NextDouble(), 1 / Alpha);
-            double b = Math.Pow(random.NextDouble(), 1 / Beta);
-            while (a + b > 1)
-            {
-                a = Math.Pow(random.NextDouble(), 1 / Alpha);
-                b = Math.Pow(random.NextDouble(), 1 / Beta);
-            }
-            return -b / (a + b);
-        }
-        public void NextState(Dictionary<int, double> transitMatrix)
+       
+        public void NextState(Dictionary<int, double> transitMatrix, TimeDistibution td)
         {
 
             foreach (var value in transitMatrix)
             {
-                tTime[value.Key] = -Math.Log(random.NextDouble()) / value.Value;
+                tTime[value.Key] = td.GetExpTime(value.Value);
             }
             
             transitionWay = 0;

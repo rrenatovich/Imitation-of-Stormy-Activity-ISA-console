@@ -63,14 +63,14 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             }
             File.WriteAllText("output.csv", stringBuilder.ToString());
 
-            for (int i = 0; i < statistics.Length; i++)
+         /*   for (int i = 0; i < statistics.Length; i++)
             {
                 Console.WriteLine(' ');
                 for (int j = 0; j < statistics[i].Count; j++)
                 {
                     Console.WriteLine($"{j} --- {statistics[i][j]}");
                 }
-            }
+            }*/
         }
     }
 
