@@ -15,7 +15,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         public int transitionWay;
         public int id;
         public Dictionary<int, double> tTime;
-        Random random;
+  
         public Request(Dictionary<int, double> transitMatrix, int id, TimeDistibution td)
         {
             this.id = id;
@@ -26,7 +26,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             {
                 tTime[value.Key] = td.GetExpTime(value.Value);
             }
-            timeDone =td.GetExpTime(1);
+            timeDone =td.GetGammaTime(1, 0.5);
                 /*GammaDistribution(0.1, 1/2)*/;
             /*-Math.Log(random.NextDouble()) / 1;*/
 
@@ -65,22 +65,23 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             {
                 tTime[value.Key] = td.GetExpTime(value.Value);
             }
+
             
-            transitionWay = 0;
+            currentTime = timeDone;
+            transitionWay = -1;
             foreach (var value in tTime)
             {
+
                 if (value.Value < currentTime)
                 {
                     currentTime = value.Value;
                     transitionWay = value.Key;
                 }
+
+               
             }
 
-            if (timeDone < currentTime)
-            {
-                currentTime = timeDone;
-                transitionWay = -1;
-            }
+            
         }
     }
 }

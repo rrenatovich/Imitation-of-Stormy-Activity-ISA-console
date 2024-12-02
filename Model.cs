@@ -21,7 +21,8 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         public int done = 0;
         private List<Request>[] nodes;
         Random random = new Random();
-
+        double minTime = 0;
+        double arrivalTime;
         Dictionary<int, int> reqs_stat = new Dictionary<int, int>()
             {
                 {1, 0 },
@@ -32,6 +33,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         List<Request> reqs = new List<Request>();
         public Model()
         {
+            arrivalTime = GetInputTime();
             matrixTransit = new Dictionary<int, double>[numberOfNodes+1];
             // вероятности переходов
             matrixTransit[0] = new Dictionary<int, double>()    
@@ -64,8 +66,9 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
         public void GetInputTask()
         {
-            
 
+
+            arrivalTime = GetInputTime();
             double p = random.NextDouble();
             foreach (var prop in matrixTransit[0])
             {
@@ -76,7 +79,9 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                     {
                         /*nodes[prop.Key - 1].Add(new Request(matrixTransit[prop.Key], prop.Key, td));*/
 
-                        reqs.Add(new Request(matrixTransit[prop.Key], prop.Key, td));
+                        Request toAddReq = new Request(matrixTransit[prop.Key], prop.Key, td);
+                        /*UpdateTime(minTime);*/
+                        reqs.Add(toAddReq);
                         reqs_stat[prop.Key]++;
                         break;
                     }
@@ -125,6 +130,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
             foreach (Request req in reqs) 
             {
+                /*req.currentTime -= time;*/
                 req.timeDone -= time;
                 req.NextState(matrixTransit[req.id], td);
             }
@@ -143,9 +149,13 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 currentTask.id = currentTask.transitionWay;
                 reqs_stat[currentTask.id]++;
                 
+                currentTask.NextState(matrixTransit[currentTask.id], td);
+                
             }
             else { reqs.Remove(currentTask); reqs_stat[currentTask.id]--; }
-            
+
+            /*UpdateTime(minTime);*/
+
         }
         public void MainCycle()
         {
@@ -155,16 +165,16 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 
             }*/
             
-            double arrivalTime = GetInputTime();
-            double serviceTime = 9999.9999;
+            
+            double serviceTime = 99999999;
             if (reqs.Count > 0) { 
                 currentTask = FindCurrentTask();
                 serviceTime = currentTask.currentTime;
             }
 
-            
+            minTime = Math.Min(serviceTime, arrivalTime);
             modelTime += Math.Min(serviceTime, arrivalTime);
-            for (int i = 0; i < nodes.Length; i++)
+            for (int i = 0; i < numberOfNodes; i++)
             {
                 statistics.WriteState(i, Math.Min(serviceTime, arrivalTime), reqs_stat[i+1]);
             }
@@ -173,17 +183,13 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             {
                 
                 ServiceRequest();
+               /* arrivalTime-= serviceTime;*/
             }
             else 
             {
                 GetInputTask();
             }
-            UpdateTime(Math.Min(serviceTime, arrivalTime));
-
-
-
-
-
+            UpdateTime(minTime);
 
         }
 
