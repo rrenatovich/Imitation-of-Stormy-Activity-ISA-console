@@ -15,17 +15,12 @@ while (model.modelTime < 100000)
     /*Console.WriteLine(model.modelTime);*/
     model.MainCycle();
 }
-/*for (int i = 0; i < 10000; i++)
-{
-    model.MainCycle();
-}
-Console.WriteLine(' ');*/
-/*model.GetInfo();*/
+
 
 
 model.statistics.GetStat(model.modelTime);
 
 sw.Stop();
 Console.WriteLine($"------{sw.Elapsed} sec--------");
-/*model.writer.Close();*/
+
 

@@ -8,8 +8,13 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 {
     internal class TimeDistibution
     {
-        Random _random = new Random();
+        int seed = 123;
 
+        Random _random;
+        public TimeDistibution()
+        {
+            _random = new Random(123);
+        }
         public double GetExpTime(double parameter)
         {
             return - Math.Log(_random.NextDouble())/parameter;
