@@ -12,28 +12,27 @@ namespace Imitation_of_Stormy_Activity_ISA_console
     internal class Model
     {
         TimeDistibution td = new TimeDistibution();
-        /*public StreamWriter writer = new StreamWriter("Test.txt");*/
-        Request currentTask;
+        InputFlow _inputFlow;
+       
+        Event currentTask;
         private int numberOfNodes = 2;
         private Dictionary<int, double>[] matrixTransit;
         public double modelTime = 0;
         public Statistics statistics;
-        public int done = 0;
-        private List<Request>[] nodes;
+        
+       
         Random random = new Random();
         double minTime = 0;
-        double arrivalTime;
-        Dictionary<int, int> reqs_stat = new Dictionary<int, int>()
+        Dictionary<int, int> events_stat = new Dictionary<int, int>()
             {
                 {1, 0 },
                 {2, 0},
 
             };
 
-        List<Request> reqs = new List<Request>();
+        List<Event> events = new List<Event>();
         public Model()
         {
-            arrivalTime = GetInputTime();
             matrixTransit = new Dictionary<int, double>[numberOfNodes+1];
             // вероятности переходов
             matrixTransit[0] = new Dictionary<int, double>()    
@@ -55,149 +54,67 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             };
            
             statistics = new Statistics(numberOfNodes);
-            nodes = new List<Request>[numberOfNodes];
-            for (int i = 0; i < numberOfNodes; i++) {
-                nodes[i] = new List<Request> { };
-            }
 
-            
-            /*Console.WriteLine($"Init array of requests in nodes -- {nodes.Length}");*/
-    }
+            _inputFlow = new InputFlow(100, td);
+            _inputFlow.GetTime(modelTime);
+        }
 
-        public void GetInputTask()
+        public void MainCycle()
         {
+            double eventTime = 999999;
+            int numberOfEvents = events_stat.Sum(x => x.Value);
+            if (numberOfEvents > 0) 
+            { 
+                currentTask = events.MinBy(p => p.currentTime);
+                eventTime = currentTask.currentTime;
+            }
+            minTime = Math.Min(_inputFlow.time, eventTime);
+            for (int i = 0; i < numberOfNodes; i++)
+            {
+                statistics.WriteState(i, minTime-modelTime, events_stat[i + 1]);
+            }
+            modelTime = minTime;
+            if (modelTime == eventTime)
+            {
+                GetEvent();
+               
+            }
+            else
+            {
+                GetInputEvent();
+               
+            }
+        }
 
-
-            arrivalTime = GetInputTime();
+        public void GetInputEvent()
+        {
             double p = random.NextDouble();
             foreach (var prop in matrixTransit[0])
             {
+                p -= prop.Value;
+                if (p <= 0)
                 {
-                    p -= prop.Value;
-
-                    if (p <= 0)
-                    {
-                        /*nodes[prop.Key - 1].Add(new Request(matrixTransit[prop.Key], prop.Key, td));*/
-
-                        Request toAddReq = new Request(matrixTransit[prop.Key], prop.Key, td);
-                        /*UpdateTime(minTime);*/
-                        reqs.Add(toAddReq);
-                        reqs_stat[prop.Key]++;
-                        break;
-                    }
+                    events.Add(new Event(matrixTransit[prop.Key], prop.Key, td, modelTime));
+                    events_stat[prop.Key]++;
+                    break;
                 }
             }
+            _inputFlow.GetTime(modelTime);
         }
 
-       public Request FindCurrentTask()
+        public void GetEvent()
         {
-            /*double minTime = 666.666;
-            for (int j = 0; j < nodes.Length; j++)
+            events_stat[currentTask.id]--; 
+            if (currentTask.transitionWay > 0)
             {
-                if (nodes[j].Count > 0) {
-                    Request min = nodes[j].MinBy(p => p.currentTime);
-                    *//*Console.WriteLine($"{min.time} {min.transitionWay}");*//*
-                    if (min.currentTime < minTime)
-                    {
-                        currentTask = min;
-                        minTime = min.currentTime;
-                    }
-                }
-              
-            }*/
-
-            var r = reqs.MinBy(p => p.currentTime);
-
-            return r;
-        }
-
-        private double GetInputTime()
-        {
-           
-            return td.GetExpTime(100); 
-        }
-
-        private void UpdateTime(double time) 
-        {
-            /*for (int i = 0; i < nodes.Length; i++)
-            {
-                foreach (var request in nodes[i])
-                {
-                    request.timeDone -= time;
-                    request.NextState(matrixTransit[request.id], td);
-                }
-            }*/
-
-            foreach (Request req in reqs) 
-            {
-                /*req.currentTime -= time;*/
-                req.timeDone -= time;
-                req.NextState(matrixTransit[req.id], td);
-            }
-        }
-        private void ServiceRequest()
-        {
-            
-            /*for (int i = 0; i < nodes.Length; i++)
-            {
-                nodes[i].Remove(currentTask);
-            }*/
-            
-            if (currentTask.transitionWay >0)
-            {
-                reqs_stat[currentTask.id] --;
                 currentTask.id = currentTask.transitionWay;
-                reqs_stat[currentTask.id]++;
-                
-                currentTask.NextState(matrixTransit[currentTask.id], td);
-                
+                events_stat[currentTask.id]++;
+                currentTask.NextState(matrixTransit[currentTask.id], td, modelTime);
             }
-            else { reqs.Remove(currentTask); reqs_stat[currentTask.id]--; }
-
-            /*UpdateTime(minTime);*/
-
-        }
-        public void MainCycle()
-        {
-            /*int currentTasks = 0;
-            for (int i = 0; i < nodes.Length; i++) {
-                currentTasks += nodes[i].Count;
-                
-            }*/
-            
-            
-            double serviceTime = 99999999;
-            if (reqs.Count > 0) { 
-                currentTask = FindCurrentTask();
-                serviceTime = currentTask.currentTime;
-            }
-
-            minTime = Math.Min(serviceTime, arrivalTime);
-            modelTime += Math.Min(serviceTime, arrivalTime);
-            for (int i = 0; i < numberOfNodes; i++)
+            else
             {
-                statistics.WriteState(i, Math.Min(serviceTime, arrivalTime), reqs_stat[i+1]);
+                events.Remove(currentTask);
             }
-
-            if (serviceTime < arrivalTime)
-            {
-                
-                ServiceRequest();
-               /* arrivalTime-= serviceTime;*/
-            }
-            else 
-            {
-                GetInputTask();
-            }
-            UpdateTime(minTime);
-
-        }
-
-
-        public void GetInfo()
-        {
-           
-        }
-
+        } 
     }
 }

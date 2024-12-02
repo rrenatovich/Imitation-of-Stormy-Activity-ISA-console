@@ -22,7 +22,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
 
         public void WriteState(int numberOfNode, double time, int currentNumber) 
         {
-            /*Console.WriteLine($"Number of node: {numberOfNode}, current number{currentNumber}");*/
+      
             if (statistics[numberOfNode].ContainsKey(currentNumber)) 
             {
                 statistics[numberOfNode][currentNumber] += time;
@@ -62,15 +62,6 @@ namespace Imitation_of_Stormy_Activity_ISA_console
                 stringBuilder.AppendLine(string.Join(',', ' '));
             }
             File.WriteAllText("output.csv", stringBuilder.ToString());
-
-         /*   for (int i = 0; i < statistics.Length; i++)
-            {
-                Console.WriteLine(' ');
-                for (int j = 0; j < statistics[i].Count; j++)
-                {
-                    Console.WriteLine($"{j} --- {statistics[i][j]}");
-                }
-            }*/
         }
     }
 
