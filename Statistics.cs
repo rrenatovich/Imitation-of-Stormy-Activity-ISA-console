@@ -64,6 +64,4 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             File.WriteAllText("output.csv", stringBuilder.ToString());
         }
     }
-
-   
 }
