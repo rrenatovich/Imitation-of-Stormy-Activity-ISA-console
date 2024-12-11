@@ -15,7 +15,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         InputFlow _inputFlow;
        
         Event currentTask;
-        private int numberOfNodes = 2;
+        private int numberOfNodes = 3;
         private Dictionary<int, double>[] matrixTransit;
         public double modelTime = 0;
         public Statistics statistics;
@@ -27,6 +27,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             {
                 {1, 0 },
                 {2, 0},
+                {3, 0}
 
             };
 
@@ -37,22 +38,31 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             // вероятности переходов
             matrixTransit[0] = new Dictionary<int, double>()    
             {
-                {1, 0.3},
-                {2, 0.7 }
+                {1, 0.2},
+                {2, 0.7 },
+                {3, 0.1}
             };
 
             // интенсивности переходов 
             matrixTransit[1] = new Dictionary<int, double>()
             {
                 {0, 1},
-                {2, 1.8 }
+                {2, 1.8 },
+                {3, 1.8 }
             };
             matrixTransit[2] = new Dictionary<int, double>()
             {
                 {0, 0.1},
-                {1, 1}
+                {1, 1},
+                {3, 1 }
             };
-           
+            matrixTransit[3] = new Dictionary<int, double>()
+            {
+                {0, 0.1},
+                {1, 1},
+                {2, 1 }
+            };
+
             statistics = new Statistics(numberOfNodes);
 
             _inputFlow = new InputFlow(100, td);
