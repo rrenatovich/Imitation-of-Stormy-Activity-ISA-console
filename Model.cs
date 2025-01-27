@@ -38,17 +38,17 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             // вероятности переходов
             matrixTransit[0] = new Dictionary<int, double>()    
             {
-                {1, 0.2},
-                {2, 0.7 },
-                {3, 0.1}
+                {1, 0.4},
+                {2, 0.3 },
+                {3, 0.3}
             };
 
             // интенсивности переходов 
             matrixTransit[1] = new Dictionary<int, double>()
             {
-                {0, 1},
-                {2, 1.8 },
-                {3, 1.8 }
+                {0, 0.1},
+                {2, 1 },
+                {3, 1 }
             };
             matrixTransit[2] = new Dictionary<int, double>()
             {
