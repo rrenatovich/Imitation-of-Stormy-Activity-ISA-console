@@ -38,9 +38,9 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             // вероятности переходов
             matrixTransit[0] = new Dictionary<int, double>()    
             {
-                {1, 0.4},
+                {1, 0.3},
                 {2, 0.3 },
-                {3, 0.3}
+                {3, 0.4}
             };
 
             // интенсивности переходов 
@@ -53,19 +53,19 @@ namespace Imitation_of_Stormy_Activity_ISA_console
             matrixTransit[2] = new Dictionary<int, double>()
             {
                 {0, 0.1},
-                {1, 1},
+                {1, 0.15},
                 {3, 1 }
             };
             matrixTransit[3] = new Dictionary<int, double>()
             {
                 {0, 0.1},
-                {1, 1},
-                {2, 1 }
+                {1, 2},
+                {2, 0.5}
             };
 
             statistics = new Statistics(numberOfNodes);
 
-            _inputFlow = new InputFlow(100, td);
+            _inputFlow = new InputFlow(10, td);
             _inputFlow.GetTime(modelTime);
         }
 

@@ -19,7 +19,7 @@ namespace Imitation_of_Stormy_Activity_ISA_console
         public Event(Dictionary<int, double> transitMatrix, int id, TimeDistibution td, double modelsTime)
         {
             this.id = id;
-            timeDone = modelsTime + td.GetGammaTime(2, 0.1);
+            timeDone = modelsTime + td.GetGammaTime(0.7, 0.1); // alpha, betha
             transitionWay = -1;
             NextState(transitMatrix, td, modelsTime);
         }
